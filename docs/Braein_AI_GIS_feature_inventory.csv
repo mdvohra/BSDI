@@ -1,0 +1,47 @@
+Area,Feature,Description
+Authentication,Login and signup,User can sign in; admin vs user roles for different screens.
+Landing,Marketing / home,High-level introduction before using the app.
+Dashboard,Admin dashboard,Central place for admins after login.
+Dashboard,User dashboard,Central place for standard users after login.
+GIS solutions,Object detection workspace,"Upload satellite or aerial imagery (including georeferenced files), optionally focus on a region, run AI detection, see results on a map, export vectors."
+GIS solutions,Super-resolution,Sharpen or upscale imagery so small features are easier to see.
+GIS solutions,Land cover (LULC),"Classify what covers the ground (urban, water, crops, etc.) with map-friendly results and saved outputs."
+GIS solutions,Analysis hub,"See below  catalog, compare, AI help, and change analysis."
+Configuration,Config  GIS models,Place to manage or view how models are presented in the app (admin-facing).
+Analysis,Prediction catalog,Browse past object-detection and land-cover runs instead of hunting files on disk.
+Analysis,Delete one or all saved runs,Clean up storage when runs are no longer needed.
+Analysis,Open a saved run,Load details and artifacts for a selected prediction.
+Analysis,Compare two runs,Side-by-side style comparison of two saved results (metrics and metadata).
+Analysis,AI chat about results,Ask plain-language questions; system uses stored prediction context.
+Analysis,Grounded follow-up questions,More structured Q&A tied to analysis data when deeper drill-down is needed.
+Analysis,LULC change  compare two maps,Pick an older and newer saved land-cover result and compute change between them.
+Analysis,LULC change  summary report,High-level statistics of what changed between the two times.
+Analysis,LULC change  transition matrix,See how areas moved from one land type to another (from → to).
+Analysis,LULC change  class focus,Drill into one land class to see where it gained or lost area.
+Analysis,LULC change  regions (optional),Support for studying change within named or drawn regions when teams provide boundaries.
+Analysis,LULC change  ranked tiles / hotspots,See where change is strongest on a grid-style summary.
+Analysis,LULC change  local window,Inspect change around a latitude/longitude with a small window size.
+Analysis,Region sets (technical option),Advanced: reuse a saved set of boundaries for repeated analysis.
+Analysis,Charts from AI replies,Visual parsing of numeric or chart-friendly content when the assistant returns it.
+Land cover  experience,Saved predictions list,Return to prior land-cover outputs without recomputing.
+Land cover  experience,Map and image views,Switch between map-aligned view and image view where supported.
+Land cover  experience,Large imagery support,Work with big geospatial files typical of real projects.
+Land cover  experience,Preview and stretching,Preview how a raster will look before full processing; improves display of dark or bright imagery.
+Land cover  experience,Streaming-style long jobs,Progress feedback while a long classification runs.
+Land cover  experience,Building overlays on land cover,Optional link between building detection outputs and a land-cover session so both appear together when reopened.
+Detection  experience,Region of interest,Limit expensive AI work to the area you care about on a GeoTIFF.
+Detection  experience,Tiled processing,Internally processes large scenes in pieces so big areas can still be handled.
+Detection  experience,Exports,Download vectors (e.g. GeoJSON-style outputs) for GIS tools.
+Detection  experience,Progress during long jobs,Shows status while heavy jobs run.
+Super-resolution  experience,Chip-based upscaling,Processes the scene in pieces then blends for a full result.
+Super-resolution  experience,Keeps geography when possible,Output can stay aligned with the source map when the input was georeferenced.
+AI capabilities,Land cover model (15 classes),Recognizes common land types for mapping and reporting.
+AI capabilities,Building / object detection,Finds object-like regions and turns them into map shapes.
+AI capabilities,Super-resolution model,Increases detail for visualization.
+AI capabilities,SAR-style flood-oriented processing,Optional workflow tuned for certain radar-like inputs where applicable.
+AI capabilities,Oil pad detection (when deployed),Specialized detection variant when that backend is in use.
+Reliability and speed,Fewer duplicate shapes on the map,Cleans overlapping tile results so the same object is not drawn many times.
+Reliability and speed,Stable map projections,Less breakage when reading diverse GeoTIFF coordinate systems on Windows-heavy setups.
+Reliability and speed,Faster GPU land-cover when hardware allows,Uses the graphics card efficiently for patch-based land cover where available.
+Reliability and speed,Choose speed vs detail for land cover,"Fast overview mode vs slower, more detailed overlay."
+Reliability and speed,Reasonable startup,Backend avoids duplicating heavy model loading in normal dev configuration.

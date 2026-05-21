@@ -1,0 +1,109 @@
+{
+    "ModelParameters": {
+        "pointrend": false,
+        "backbone": "resnet50",
+        "backend": "pytorch"
+    },
+    "Framework": "arcgis.learn.models._inferencing",
+    "ModelConfiguration": "_maskrcnn_inferencing",
+    "InferenceFunction": "[Functions]System\\DeepLearning\\ArcGISLearn\\ArcGISInstanceDetector.py",
+    "ModelType": "InstanceDetection",
+    "MaskRCNNkwargs": {},
+    "ExtractBands": [
+        0,
+        1,
+        2
+    ],
+    "SupportsVariableTileSize": true,
+    "Classes": [
+        {
+            "Value": 1,
+            "Name": "Oil Pad",
+            "Color": [
+                26,
+                151,
+                36
+            ]
+        }
+    ],
+    "ModelFormat": "NCHW",
+    "MinCellSize": {
+        "x": 10,
+        "y": 10,
+        "spatialReference": {
+            "wkid": 32631,
+            "latestWkid": 32631
+        }
+    },
+    "MaxCellSize": {
+        "x": 10,
+        "y": 10,
+        "spatialReference": {
+            "wkid": 32631,
+            "latestWkid": 32631
+        }
+    },
+    "ArcGISLearnVersion": "2.2.0.1",
+    "monitored_valid_loss": 1.115468978881836,
+    "ModelFile": "Oil_PadSamplesOutput_batch16.pth",
+    "ImageHeight": 224,
+    "ImageWidth": 224,
+    "ImageSpaceUsed": "MAP_SPACE",
+    "LearningRate": "slice('7.5858e-06', '7.5858e-05', None)",
+    "ModelName": "MaskRCNN",
+    "backend": "pytorch",
+    "average_precision_score": {
+        "Oil Pad": 0.6130098064769168
+    },
+    "resize_to": 224,
+    "IsMultispectral": true,
+    "Bands": [
+        "",
+        "",
+        ""
+    ],
+    "ImageryType": "Undefined",
+    "NormalizationStats": {
+        "band_min_values": [
+            650.0,
+            785.0,
+            1025.0
+        ],
+        "band_max_values": [
+            13807.0,
+            4695.0,
+            4066.0
+        ],
+        "band_mean_values": [
+            3994.7255859375,
+            2634.139404296875,
+            2098.298095703125
+        ],
+        "band_std_values": [
+            291.63494873046875,
+            156.958740234375,
+            108.52420806884766
+        ],
+        "scaled_min_values": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scaled_max_values": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "scaled_mean_values": [
+            0.25421643257141113,
+            0.47292569279670715,
+            0.35294249653816223
+        ],
+        "scaled_std_values": [
+            0.01855907030403614,
+            0.028179913759231567,
+            0.018254224210977554
+        ]
+    },
+    "DoNormalize": false
+}

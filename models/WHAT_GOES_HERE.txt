@@ -1,0 +1,8 @@
+Braein ML layout (see backend/model_paths.py)
+
+  artifacts/  — weights (.pth, .pt), Hugging Face-style folders (config + safetensors), etc.
+  samples/    — small demo GeoTIFFs and other bundled inputs for the UI or scripts
+
+Env: BRAEIN_MODELS_ROOT (optional), LULC_MODEL_PATH (optional).
+
+Each subfolder also has a short WHAT_GOES_HERE.txt.

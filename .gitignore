@@ -1,0 +1,61 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+node_modules/
+dist/
+*.log
+.DS_Store
+.cursor/
+__pycache__/
+
+# Docker Compose BuildKit local cache (compose build cache_from/cache_to)
+.build-cache/
+
+# Generated outputs
+backend/outputs/
+
+# Large model files (use Git LFS or download separately)
+*.pth
+*.pt
+*.pkl
+*.h5
+*.onnx
+*.ckpt
+*.safetensors
+*.dlpk
+backend/models/
+backend/lulc/model.safetensors
+SAR_Flood/**/*.pth
+waterbodies_model_inference/**/*.pth
+waterbodies_model_inference/Georef_topo/
+models/samples/sar_flood/*.tif
+models/samples/sar_flood/*.tiff
+models/samples/sar_flood/*.ovr
+
+# LULC runtime data
+backend/lulc/predictions/
+backend/lulc/preview_cache/
+
+# Secrets
+**/client_secret*.json
+**/Microsoft secret*
+
+# Large media
+*.mp4
+
+# Sample GeoTIFFs under Eg_files (often >100MB; GitHub rejects). Keep locally or attach as a release asset.
+Eg_files/*.tif
+Eg_files/*.tiff
+Eg_files/*.ovr
+Eg_files/*.rrd
+Eg_files/*.aux
+
+# Same ortho sample copied for app demos (too large for GitHub)
+models/samples/demo_ortho/*.tif
+models/samples/demo_ortho/*.tiff
+models/samples/demo_ortho/*.ovr
+models/samples/demo_ortho/*.rrd
+models/samples/demo_ortho/*.aux

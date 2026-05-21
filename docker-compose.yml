@@ -1,0 +1,64 @@
+# BuildKit: local cache entries below route builds through BuildKit (no shell env needed).
+# Repo-root compose.ps1 / compose.cmd still work if you prefer explicit env vars.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      cache_from:
+        - type=local,src=.build-cache/backend
+      cache_to:
+        - type=local,dest=.build-cache/backend,mode=max
+    volumes:
+      - ./models:/models
+      - ./backend/uploads:/app/uploads
+      - ./backend/outputs:/app/outputs
+      - hf_cache:/root/.cache/huggingface
+    environment:
+      BRAEIN_MODELS_ROOT: /models
+      HF_HOME: /root/.cache/huggingface
+      TRANSFORMERS_CACHE: /root/.cache/huggingface
+      UVICORN_RELOAD: "0"
+    env_file:
+      - path: backend/.env
+        required: false
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      cache_from:
+        - type=local,src=.build-cache/frontend
+      cache_to:
+        - type=local,dest=.build-cache/frontend,mode=max
+      args:
+        # Omit or leave empty in root `.env` so the client uses the browser origin (http vs https).
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:-localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  hf_cache:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,16 @@
+{
+  "task": "maskrcnn",
+  "created_at": "2026-05-13 11:36:09",
+  "model_name": "Oil_Pad_Detection",
+  "source_filename": "000000000000.tif",
+  "inference_threshold": 0.2,
+  "score_floor": 0.05,
+  "artifacts": {
+    "geojson": "D:\\Braein\\BSDI\\backend\\outputs\\detections_0e5c4bf40dd64f6b9512e9bf54ca1db0.geojson",
+    "full_geojson": "D:\\Braein\\BSDI\\backend\\outputs\\detections_0e5c4bf40dd64f6b9512e9bf54ca1db0_full.geojson",
+    "shapefile": "D:\\Braein\\BSDI\\backend\\outputs\\detections_0e5c4bf40dd64f6b9512e9bf54ca1db0.zip",
+    "overlay": "D:\\Braein\\BSDI\\backend\\outputs\\overlay_0e5c4bf40dd64f6b9512e9bf54ca1db0.png"
+  },
+  "schema_version": "1.0",
+  "run_id": "0e5c4bf40dd64f6b9512e9bf54ca1db0"
+}

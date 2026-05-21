@@ -1,0 +1,343 @@
+/* Land Use / Land Cover — page layout (scoped under .lulc-page) */
+
+.lulc-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.lulc-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35rem 0;
+}
+
+.lulc-page-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 42rem;
+}
+
+.lulc-sidebar-card.card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.lulc-sidebar-card .card-body {
+  padding: 1.25rem;
+}
+
+.lulc-map-shell {
+  height: min(78vh, 860px);
+  min-height: 420px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  background: #f1f5f9;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.lulc-map-shell > * {
+  height: 100%;
+}
+
+.lulc-map-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 0.9375rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.lulc-section-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.lulc-file-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lulc-file-picker input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.lulc-file-picker-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.lulc-file-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lulc-file-picker-label:hover .lulc-file-trigger {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.lulc-file-name {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+  word-break: break-all;
+  min-height: 1.25rem;
+}
+
+.lulc-form-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.375rem;
+}
+
+.lulc-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #1e293b;
+}
+
+.lulc-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.lulc-select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.lulc-hint {
+  font-size: 0.6875rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.lulc-info-callout {
+  margin-top: 1rem;
+  padding: 0.75rem 0.875rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+}
+
+.lulc-info-callout-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #047857;
+  margin: 0 0 0.25rem 0;
+}
+
+.lulc-info-callout-text {
+  font-size: 0.6875rem;
+  color: #059669;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.lulc-btn-primary {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: #10b981;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.25);
+}
+
+.lulc-btn-primary:hover:not(:disabled) {
+  background: #059669;
+}
+
+.lulc-btn-primary:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.lulc-btn-primary.lulc-btn-danger {
+  background: #ef4444;
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.25);
+}
+
+.lulc-btn-primary.lulc-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.lulc-btn-secondary {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  background: #6366f1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lulc-btn-secondary:hover {
+  background: #4f46e5;
+}
+
+.lulc-btn-secondary.lulc-btn-active {
+  background: #2563eb;
+}
+
+.lulc-legend-section {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.lulc-error {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.lulc-export-dropdown .dropdown-toggle {
+  background-color: #10b981 !important;
+  border-color: transparent !important;
+}
+
+.lulc-export-dropdown .dropdown-toggle:hover,
+.lulc-export-dropdown .dropdown-toggle:focus,
+.lulc-export-dropdown .dropdown-toggle:active,
+.lulc-export-dropdown .dropdown-toggle.show {
+  background-color: #059669 !important;
+  border-color: transparent !important;
+}
+
+.lulc-export-dropdown .dropdown-toggle:disabled {
+  background-color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+/* GeoTIFF map + ROI draw */
+.lulc-geotiff-map-wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.lulc-roi-toolbar {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.lulc-roi-toolbar > * {
+  pointer-events: auto;
+}
+
+.lulc-roi-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #475569;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.lulc-roi-fab:hover {
+  background: #f8fafc;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+.lulc-roi-fab-active {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #93c5fd;
+}
+
+.lulc-roi-clear {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.lulc-roi-clear:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.lulc-roi-hint {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.75rem;
+  color: #2563eb;
+  line-height: 1.4;
+}

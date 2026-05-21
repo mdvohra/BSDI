@@ -1,0 +1,3 @@
+Demo ortho GeoTIFF for Object Detection / NAKSHA sample button.
+Expected filenames include TPG_22-23_ortho.tif or TPG_22-23_ortho.tif.tif.
+If empty, the server still checks legacy Eg_files/.

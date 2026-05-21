@@ -1,0 +1,1 @@
+SAR flood UNet weights (e.g. sar_flood_unet.pth). Also listed by the UNet /models API.

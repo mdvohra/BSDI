@@ -1,0 +1,9 @@
+{
+  "regions": [
+    {
+      "region_id": "full_extent",
+      "name": "Entire compared area (automatic)",
+      "file": "regions/full_extent.json"
+    }
+  ]
+}

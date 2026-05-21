@@ -1,0 +1,18 @@
+{
+  "task": "unet",
+  "created_at": "2026-04-29 15:07:51",
+  "model_name": "finetuned_modelnew1.pth",
+  "source_filename": "tmpwjnzlinz.tif",
+  "inference_threshold": 0.3,
+  "width": 7733,
+  "height": 8232,
+  "artifacts": {
+    "geojson": "d:\\Braein\\BSDI\\backend\\outputs\\cae04b88-04aa-45eb-b31f-fbb09df2f192\\buildings.geojson",
+    "shapefile": "d:\\Braein\\BSDI\\backend\\outputs\\cae04b88-04aa-45eb-b31f-fbb09df2f192\\building_polygons.zip",
+    "overlay": "d:\\Braein\\BSDI\\backend\\outputs\\overlay_cae04b88-04aa-45eb-b31f-fbb09df2f192.png",
+    "confidence_npz": "d:\\Braein\\BSDI\\backend\\outputs\\cae04b88-04aa-45eb-b31f-fbb09df2f192\\confidence_fp16.npz",
+    "unet_run_meta": "d:\\Braein\\BSDI\\backend\\outputs\\cae04b88-04aa-45eb-b31f-fbb09df2f192\\unet_run_meta.json"
+  },
+  "schema_version": "1.0",
+  "run_id": "cae04b88-04aa-45eb-b31f-fbb09df2f192"
+}

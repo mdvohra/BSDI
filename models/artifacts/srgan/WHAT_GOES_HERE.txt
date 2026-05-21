@@ -1,0 +1,2 @@
+SRGAN / super-resolution weights: place *.pth / *.pt here (names often contain srgan, super, resolution, etc.).
+Fallback: backend/models/

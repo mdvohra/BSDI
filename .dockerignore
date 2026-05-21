@@ -1,0 +1,13 @@
+# Used when build context is the repository root (e.g. future root-level dockerfile).
+**/node_modules
+**/.venv
+**/lulc/.venv
+**/__pycache__
+**/.git
+backend/.env
+frontend/.env
+**/uploads
+**/outputs
+models/**/*.pth
+models/**/*.pt
+models/**/*.safetensors

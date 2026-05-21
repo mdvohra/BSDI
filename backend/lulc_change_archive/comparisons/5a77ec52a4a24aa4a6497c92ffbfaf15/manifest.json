@@ -1,0 +1,43 @@
+{
+  "comparison_id": "5a77ec52a4a24aa4a6497c92ffbfaf15",
+  "baseline_id": "20260421_115849_157bc03a",
+  "new_id": "20260421_114746_3ce90a77",
+  "created_at": "2026-04-21 12:09:22",
+  "status": "complete",
+  "taxonomy_version": "fine_15",
+  "alignment": {
+    "reference": "new",
+    "nodata": 255,
+    "transform": [
+      0.03499933455211656,
+      0.0,
+      455965.2633346162,
+      0.0,
+      -0.03499911135066874,
+      2889983.335216908,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "crs": "EPSG:32639",
+    "height": 16464,
+    "width": 23200
+  },
+  "input_hashes": {
+    "baseline_classes": "d535f1c938b02f95",
+    "new_classes": "f39e49352830dec2"
+  },
+  "tile_px": 128,
+  "tiles_grid": {
+    "n_rows": 129,
+    "n_cols": 182
+  },
+  "paths": {
+    "summary": "summary.json",
+    "transition_matrix": "transition_matrix.json",
+    "tiles_meta": "tiles_meta.json",
+    "tiles_ranked_top": "tiles_ranked_top.json",
+    "tiles_chunk_glob": "tiles_chunks/chunk_*.json",
+    "regions_index": "regions_index.json"
+  }
+}

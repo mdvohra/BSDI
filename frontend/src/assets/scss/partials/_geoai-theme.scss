@@ -1,0 +1,117 @@
+// GeoAI — Bahrain-inspired red & white accents (loads after core theme)
+
+/* Glowing white wordmark (sidebar / dark bars) */
+.geoai-wordmark {
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  line-height: 1.2;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 1),
+    0 0 18px rgba(255, 255, 255, 0.75),
+    0 0 32px rgba(255, 255, 255, 0.45),
+    0 0 48px rgba(255, 220, 220, 0.35);
+}
+
+/* Light backgrounds: frosted pill so glow reads */
+.geoai-wordmark--on-light {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 10px;
+  background: rgba(17, 17, 17, 0.82);
+  box-shadow:
+    0 0 16px rgba(255, 255, 255, 0.35),
+    0 0 32px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.pcoded-navbar .navbar-brand .geoai-wordmark {
+  font-size: 1.35rem;
+}
+
+.pcoded-header .m-header .geoai-wordmark {
+  font-size: 1.2rem;
+}
+
+.navbar-custom .geoai-wordmark {
+  font-size: 1.5rem;
+  letter-spacing: 0.06em;
+}
+
+.geoai-wordmark--lg {
+  font-size: 2rem;
+  letter-spacing: 0.06em;
+}
+
+.geoai-dashboard-hero h2.geoai-wordmark {
+  font-size: 1.75rem;
+  letter-spacing: 0.02em;
+}
+
+body {
+  background-color: #FFF5F5 !important;
+}
+
+.pcoded-main-container .pcoded-content {
+  background: linear-gradient(180deg, #FFF5F5 0%, #ffffff 40%);
+}
+
+.pcoded-navbar .pcoded-item > li.active > a {
+  font-weight: 600;
+}
+
+.geoai-cta-btn.btn-primary {
+  background-color: #CE1126 !important;
+  border-color: #CE1126 !important;
+}
+
+.geoai-cta-btn.btn-primary:hover {
+  background-color: #a50e1f !important;
+  border-color: #a50e1f !important;
+}
+
+.geoai-feature-card .card-body {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.geoai-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(206, 17, 38, 0.15) !important;
+}
+
+/* ── Object detection / satellite map UI (tokens used by views/sataliteImage/styles.css) ── */
+.sat-page {
+  --geoai-od-accent: #ce1126;
+  --geoai-od-accent-hover: #a50e1f;
+  --geoai-od-accent-soft: rgba(206, 17, 38, 0.2);
+  --geoai-od-accent-softer: rgba(206, 17, 38, 0.12);
+  --geoai-od-accent-glow: rgba(206, 17, 38, 0.35);
+  --geoai-od-accent-text: #fecaca;
+  --geoai-od-accent-text-strong: #fca5a5;
+  --geoai-od-surface: rgba(26, 22, 24, 0.9);
+  --geoai-od-surface-elevated: rgba(32, 26, 28, 0.94);
+  --geoai-od-border: rgba(255, 245, 245, 0.12);
+  --geoai-od-border-strong: rgba(206, 17, 38, 0.35);
+  --geoai-od-text: #faf7f7;
+  --geoai-od-text-secondary: rgba(255, 245, 245, 0.72);
+  --geoai-od-text-muted: rgba(255, 245, 245, 0.48);
+  --geoai-od-text-dim: rgba(255, 245, 245, 0.35);
+  --geoai-od-ring: rgba(206, 17, 38, 0.42);
+  --geoai-od-success: #f87171;
+  --geoai-od-success-soft: rgba(248, 113, 113, 0.2);
+  --geoai-od-danger: #fca5a5;
+  --geoai-od-processing-start: #dc2626;
+  --geoai-od-processing-end: #991b1b;
+  /* Light cards (export / threshold panels on pale pink page bg) */
+  --geoai-od-on-light-muted: #78716c;
+  --geoai-od-on-light-text: #292524;
+  --geoai-od-on-light-border: rgba(206, 17, 38, 0.22);
+  /* Shared “Saved Predictions” style — frosted rose cards */
+  --geoai-od-card-bg: rgba(255, 245, 245, 0.92);
+  --geoai-od-card-border: rgba(206, 17, 38, 0.18);
+  --geoai-od-card-shadow: 0 2px 14px rgba(206, 17, 38, 0.1);
+  --geoai-od-input-bg: rgba(255, 255, 255, 0.96);
+  --geoai-od-input-border: rgba(148, 163, 184, 0.35);
+  --geoai-od-track-bg: rgba(41, 37, 36, 0.12);
+}

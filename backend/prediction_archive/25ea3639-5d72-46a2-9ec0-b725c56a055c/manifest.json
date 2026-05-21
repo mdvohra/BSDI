@@ -1,0 +1,18 @@
+{
+  "task": "unet",
+  "created_at": "2026-05-06 16:42:44",
+  "model_name": "Building Detection.pth",
+  "source_filename": "tmpqa41m74j.tif",
+  "inference_threshold": 0.3,
+  "width": 5799,
+  "height": 5350,
+  "artifacts": {
+    "geojson": "D:\\Braein\\BSDI\\backend\\outputs\\25ea3639-5d72-46a2-9ec0-b725c56a055c\\buildings.geojson",
+    "shapefile": "D:\\Braein\\BSDI\\backend\\outputs\\25ea3639-5d72-46a2-9ec0-b725c56a055c\\building_polygons.zip",
+    "overlay": "D:\\Braein\\BSDI\\backend\\outputs\\overlay_25ea3639-5d72-46a2-9ec0-b725c56a055c.png",
+    "confidence_npz": "D:\\Braein\\BSDI\\backend\\outputs\\25ea3639-5d72-46a2-9ec0-b725c56a055c\\confidence_fp16.npz",
+    "unet_run_meta": "D:\\Braein\\BSDI\\backend\\outputs\\25ea3639-5d72-46a2-9ec0-b725c56a055c\\unet_run_meta.json"
+  },
+  "schema_version": "1.0",
+  "run_id": "25ea3639-5d72-46a2-9ec0-b725c56a055c"
+}

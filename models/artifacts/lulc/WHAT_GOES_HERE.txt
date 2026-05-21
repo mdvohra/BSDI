@@ -1,0 +1,2 @@
+GiD LULC local bundle: config.json, preprocessor_config.json, model.safetensors (Hugging Face layout).
+If missing, the app uses Hugging Face or backend/lulc/ as fallback.

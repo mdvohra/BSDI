@@ -1,0 +1,2 @@
+Oil pad detection weights for Oil_pad_backend.py (*.pth).
+Fallback: backend/models/

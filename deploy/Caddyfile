@@ -1,0 +1,19 @@
+# Edge router: API path prefixes → backend (FastAPI + Flask LULC); everything else → frontend (SPA).
+# Set PUBLIC_DOMAIN (e.g. localhost or geoai.example.com) via docker-compose.
+# For public HTTPS, point DNS to this host; Caddy obtains certificates automatically. Optionally add:
+#   { email you@example.com }
+# for Let's Encrypt account contact (see Caddy docs).
+
+{$PUBLIC_DOMAIN} {
+	encode gzip zstd
+
+	@api path /api/* /unet /unet/* /maskrcnn /maskrcnn/* /srgan /srgan/* /oil_spill /oil_spill/* /lulc /lulc/* /Auth /Auth/* /docs /docs/* /redoc /redoc/* /openapi.json
+
+	handle @api {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}

@@ -1,0 +1,21 @@
+.file-drop-box {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #007bff;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #6c757d;
+  }
+  
+  .file-drop-box.dragging {
+    background-color: #e9ecef;
+  }
+  
+  .file-drop-box:hover {
+    background-color: #f8f9fa;
+  }
+  

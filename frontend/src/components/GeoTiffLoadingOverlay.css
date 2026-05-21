@@ -1,0 +1,38 @@
+@keyframes geotiff-map-load-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.geotiff-map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+
+.geotiff-map-loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #34d399;
+  border-radius: 50%;
+  animation: geotiff-map-load-spin 0.75s linear infinite;
+}
+
+.geotiff-map-loading-text {
+  margin: 0;
+  max-width: 22rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: #f1f5f9;
+}

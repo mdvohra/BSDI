@@ -1,0 +1,174 @@
+.analysis-page {
+  min-height: calc(100vh - 80px);
+  background: radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%);
+}
+
+.analysis-card {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  color: #e2e8f0;
+}
+
+.analysis-card .card-header {
+  background: rgba(30, 41, 59, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  color: #93c5fd;
+  font-size: 0.95rem;
+}
+
+.analysis-tabs .nav-link {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.analysis-tabs .nav-link.active {
+  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.analysis-inspector {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.analysis-json {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.analysis-chat-log {
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.analysis-msg {
+  margin-bottom: 12px;
+}
+
+.analysis-msg-role {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.analysis-msg-text {
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.analysis-msg-user .analysis-msg-text {
+  color: #bae6fd;
+}
+
+.analysis-msg-assistant .analysis-msg-text {
+  color: #e2e8f0;
+}
+
+.analysis-chart-wrap {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.analysis-chart-title {
+  font-size: 13px;
+  color: #93c5fd;
+  margin-bottom: 4px;
+}
+
+/* LULC Comparison tab — dual overlays + class chips */
+.lulc-comparison-tab {
+  color: #e2e8f0;
+}
+
+.lulc-comparison-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .lulc-comparison-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lulc-comparison-panel-title {
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+.lulc-comparison-canvas-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.lulc-comparison-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.lulc-comparison-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lulc-comparison-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.65);
+  color: #e2e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.lulc-comparison-chip:hover {
+  border-color: rgba(147, 197, 253, 0.5);
+  background: rgba(51, 65, 85, 0.75);
+}
+
+.lulc-comparison-chip-active {
+  border-color: rgba(147, 197, 253, 0.85);
+  background: rgba(51, 65, 85, 0.95);
+  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25);
+}
+
+.lulc-comparison-chip-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lulc-comparison-chip-label {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

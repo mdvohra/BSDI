@@ -1,0 +1,23 @@
+.image-container {
+  position: relative;
+  overflow: hidden; /* Hide overflow content */
+  height: auto; /* Maintain the aspect ratio */
+}
+
+.image-container img {
+  transition: transform 0.8s ease-in-out; /* Slow transition for sliding effect */
+  width: 100%;
+  height: auto;
+  border-radius: 10px; /* Keep the border-radius */
+}
+
+.slide-in {
+  transform: translateX(0);
+  /* move the image slowely */
+  transition: transform 0.2s ease-in-out;
+}
+
+.slide-out {
+  transform: translateX(-100%); /* Move the image to the left */
+  transition: transform 0.2s ease-in-out;
+}

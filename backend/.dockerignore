@@ -1,0 +1,38 @@
+# Virtual envs — never part of the image (deps come from requirements.txt).
+**/.venv/
+**/.venv
+lulc/.venv
+
+**/__pycache__
+**/*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+coverage.xml
+htmlcov/
+
+.env
+.env.*
+outputs/
+uploads/
+*.md
+.ipynb_checkpoints
+*.ipynb
+**/.git
+**/.pytest_cache
+**/node_modules
+
+lulc/inference_results/
+
+# Torch / HF runtime caches (compose mounts hf_cache volume at runtime).
+.cache/
+**/.torch/
+
+# Duplicate weights: keep canonical copies under repo ./models (mounted as /models).
+# Uncomment after moving legacy *.pth / bundles from backend/models into ./models/artifacts/*.
+# models/
+#
+# Optional after copying lulc/model.safetensors -> ../models/artifacts/lulc/ (resolve_lulc_pretrained_path prefers that):
+# lulc/model.safetensors

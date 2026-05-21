@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "task": "lulc",
+  "run_id": "20260514_155435_60977cdd",
+  "created_at": "2026-05-14 15:54:43",
+  "model_name": "GiD-Land-Cover-Classification",
+  "source_filename": "bahrain_sentinel_new.tif",
+  "seg_mode": "fast",
+  "predictions_dir": "D:\\Braein\\BSDI\\backend\\lulc\\predictions",
+  "artifacts": {
+    "annotation_png": "D:\\Braein\\BSDI\\backend\\lulc\\predictions\\20260514_155435_60977cdd.png",
+    "meta_json": "D:\\Braein\\BSDI\\backend\\lulc\\predictions\\20260514_155435_60977cdd.json",
+    "base_png": "D:\\Braein\\BSDI\\backend\\lulc\\predictions\\20260514_155435_60977cdd_base.png",
+    "geotiff": "D:\\Braein\\BSDI\\backend\\lulc\\predictions\\20260514_155435_60977cdd.tif",
+    "class_geotiff": "D:\\Braein\\BSDI\\backend\\lulc\\predictions\\20260514_155435_60977cdd_classes.tif",
+    "buildings_geojson": "",
+    "buildings_full_geojson": "",
+    "unet_confidence_npz": ""
+  }
+}

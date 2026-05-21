@@ -1,0 +1,2 @@
+Optional demo SAR rasters (e.g. p_withfloods.tif) for SAR_Flood/inf_sar_flood.py defaults.
+If missing, the script uses SAR_Flood/datasets/.

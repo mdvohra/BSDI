@@ -1,0 +1,2 @@
+Mask R-CNN detection weights: place *.pth / *.pt here.
+Fallback: backend/models/

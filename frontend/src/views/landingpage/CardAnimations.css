@@ -1,0 +1,23 @@
+.hidden-card {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate-card {
+    opacity: 1;
+    transform: scale(1);
+    transition: 1.5s;
+}
+
+.hidden {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate {
+    opacity: 1;
+    transform: scale(1);
+    transition: 1.5s;
+}

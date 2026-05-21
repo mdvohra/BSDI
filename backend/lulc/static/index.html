@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GiD Land Cover Classification</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+    .panel { width: 320px; padding: 16px; background: #fff; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #e0e4e8; box-shadow: 2px 0 12px rgba(0,0,0,0.06); }
+    .map-wrap { flex: 1; min-width: 0; min-height: 0; position: relative; background: #e8eaed; }
+    #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #e8eaed; }
+    #mapPlaceholder { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #5f6368; font-size: 1rem; text-align: center; z-index: 1000; pointer-events: none; max-width: 80%; }
+    .result-img-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: none; align-items: center; justify-content: center; background: #e8eaed; z-index: 500; padding: 16px; }
+    .result-img-wrap.visible { display: flex; }
+    .result-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .view-toggle { position: absolute; top: 10px; right: 10px; z-index: 1001; }
+    .view-toggle button { background: rgba(255,255,255,0.95); color: #1a1a2e; border: 1px solid #dadce0; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .view-toggle button:hover { background: #f8f9fa; }
+    .view-toggle button.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .view-toggle button:disabled { background: #f1f3f4; color: #9aa0a6; border-color: #dadce0; }
+    .view-toggle-dl { display: inline-block; background: rgba(255,255,255,0.95); color: #1a1a2e; border: 1px solid #dadce0; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-left: 4px; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .view-toggle-dl:hover { background: #f8f9fa; }
+    .leaflet-pane { z-index: 1; }
+    .leaflet-top.leaflet-right { z-index: 2; }
+    .leaflet-control-attribution { font-size: 10px; background: rgba(255,255,255,0.9) !important; color: #5f6368; }
+    .pred-legend { padding: 8px 12px; background: rgba(255,255,255,0.96); border-radius: 8px; color: #1a1a2e; font-size: 12px; border: 1px solid #e0e4e8; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .pred-legend h4 { margin: 0 0 6px 0; color: #1a73e8; font-size: 13px; }
+    .pred-legend ul { list-style: none; padding: 0; margin: 0; }
+    .pred-legend li { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+    .pred-legend .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+    .pred-legend .pct { color: #1a73e8; margin-left: auto; }
+    h1 { font-size: 1.25rem; margin: 0 0 16px 0; color: #1a73e8; }
+    input[type="file"] { display: block; margin-bottom: 12px; color: #5f6368; font-size: 0.9rem; }
+    button { background: #1a73e8; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; }
+    button:hover { background: #1765cc; }
+    button:disabled { background: #bdc1c6; color: #fff; cursor: not-allowed; }
+    .seg-btn { margin: 0; }
+    .result { margin-top: 20px; }
+    .top-pred { background: #e8f0fe; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 1.1rem; border: 1px solid #c2dbfe; }
+    .top-pred strong { color: #1a73e8; }
+    .legend { list-style: none; padding: 0; margin: 0; }
+    .legend li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #e0e4e8; font-size: 0.9rem; }
+    .legend .swatch { width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; border: 1px solid #dadce0; }
+    .legend .pct { color: #1a73e8; margin-left: auto; }
+    .error { color: #c5221f; margin-top: 12px; }
+    .placeholder { color: #5f6368; margin-top: 24px; font-size: 0.95rem; }
+    .crs-display { color: #1967d2 !important; }
+    .metrics-section { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e0e4e8; }
+    .metrics-section h4 { font-size: 12px; color: #1a73e8; margin: 0 0 8px 0; }
+    .chart-wrap { height: 180px; margin-bottom: 12px; position: relative; }
+    .confidence-bar { height: 6px; background: #e0e4e8; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+    .confidence-bar .fill { height: 100%; background: linear-gradient(90deg, #1a73e8, #34a853); border-radius: 3px; transition: width 0.3s; }
+    .model-metrics-table { font-size: 10px; width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .model-metrics-table th, .model-metrics-table td { padding: 2px 4px; text-align: right; border-bottom: 1px solid #e0e4e8; }
+    .model-metrics-table th { text-align: left; color: #5f6368; }
+    .model-metrics-table .accuracy-row { font-weight: bold; color: #1a73e8; }
+    .metrics-toggle { background: none; border: none; color: #1a73e8; cursor: pointer; font-size: 11px; padding: 4px 0; margin-bottom: 4px; }
+    .metrics-toggle:hover { text-decoration: underline; }
+    .progress-wrap { margin: 12px 0; display: none; }
+    .progress-wrap.visible { display: block; }
+    .progress-bar { height: 8px; background: #e0e4e8; border-radius: 4px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: #1a73e8; border-radius: 4px; animation: progress-pulse 1.2s ease-in-out infinite; width: 35%; }
+    @keyframes progress-pulse { 0%, 100% { margin-left: 0; } 50% { margin-left: 65%; } }
+    .progress-text { font-size: 0.85rem; color: #5f6368; margin-top: 6px; }
+    .swipe-container { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .swipe-frame { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .swipe-frame .base-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .swipe-frame .base-layer img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; }
+    .swipe-frame .pred-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    .swipe-frame .pred-layer img { position: absolute; left: 0; top: 0; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; pointer-events: auto; }
+    .swipe-divider { position: absolute; top: 0; bottom: 0; width: 4px; background: #1a73e8; cursor: ew-resize; z-index: 10; box-shadow: 0 0 8px rgba(0,0,0,0.2); transform: translateX(-50%); pointer-events: auto; }
+    .swipe-divider::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: #1a73e8; border-radius: 50%; border: 2px solid #fff; pointer-events: none; }
+    .swipe-labels { position: absolute; bottom: 12px; left: 12px; z-index: 5; font-size: 11px; color: #1a1a2e; text-shadow: 0 1px 2px #fff; font-weight: 500; }
+    .swipe-labels .right-label { position: absolute; right: 12px; left: auto; }
+    .saved-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e4e8; }
+    .saved-section h4 { font-size: 12px; color: #1a73e8; margin: 0 0 8px 0; }
+    .saved-list { max-height: 220px; overflow-y: auto; }
+    .saved-item { display: block; width: 100%; text-align: left; padding: 8px 10px; margin-bottom: 6px; background: #f8f9fa; border: 1px solid #e0e4e8; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: #1a1a2e; }
+    .saved-item:hover { background: #e8f0fe; border-color: #1a73e8; }
+    .saved-item .top { font-weight: 600; color: #1a73e8; }
+    .saved-item .meta { font-size: 0.75rem; color: #5f6368; margin-top: 2px; }
+    .saved-refresh { background: #f1f3f4; color: #5f6368; padding: 6px 12px; font-size: 0.85rem; margin-bottom: 8px; width: auto; }
+    .saved-refresh:hover { background: #e8eaed; color: #1a1a2e; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="panel">
+      <h1>Land Cover Classification</h1>
+      <p style="color:#888; font-size:0.9rem; margin-bottom:16px;">Upload a GeoTIFF (e.g. Sentinel) + .tfw for position. Result shows a <strong>segmentation overlay</strong> (colored regions by land cover) and top prediction. Use .tif + .tfw for correct map placement.</p>
+      <form id="form">
+        <input type="file" id="file" accept=".png,.jpg,.jpeg,.tif,.tiff,.tfw,.tifw,.xml" multiple />
+        <input type="hidden" name="seg_mode" id="segMode" value="fast" />
+        <p style="font-size:0.85rem; color:#5f6368; margin:8px 0 6px 0;">1. Upload image (GeoTIFF + .tfw for map).</p>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
+          <button type="button" id="btnShowOnMap" class="seg-btn" style="background:#5f6368; display:none;">Show original on map</button>
+        </div>
+        <p style="font-size:0.85rem; color:#5f6368; margin:8px 0 6px 0;">2. Then run prediction:</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button type="button" id="btnFast" class="seg-btn">Classify (fast — larger tiles)</button>
+          <button type="button" id="btnPixel" class="seg-btn">Classify (pixel-level)</button>
+        </div>
+      </form>
+      <div id="status" class="placeholder">Upload an image, optionally show on map, then click Classify.</div>
+      <div id="progressWrap" class="progress-wrap">
+        <div class="progress-bar"><div class="fill"></div></div>
+        <div class="progress-text" id="progressText">Classifying… This may take several minutes for large images.</div>
+      </div>
+      <div id="result" class="result" style="display:none;">
+        <div id="imageCrs" class="crs-display" style="display:none; margin-bottom:10px; font-size:0.85rem; color:#0eb; padding:8px; background:#0f3460; border-radius:6px;"></div>
+        <div class="top-pred" id="topPred"></div>
+        <ul class="legend" id="legend"></ul>
+        <div class="metrics-section">
+          <h4>Prediction distribution</h4>
+          <div class="chart-wrap"><canvas id="predChart"></canvas></div>
+          <div id="confidenceLine"></div>
+          <div class="confidence-bar"><div class="fill" id="confidenceBar" style="width:0%"></div></div>
+        </div>
+        <div class="metrics-section">
+          <button type="button" class="metrics-toggle" id="modelMetricsToggle">▼ Model performance (eval set)</button>
+          <div id="modelMetricsBlock" style="display:none;">
+            <div class="chart-wrap"><canvas id="evalChart"></canvas></div>
+            <table class="model-metrics-table" id="modelMetricsTable"></table>
+          </div>
+        </div>
+      </div>
+      <div class="saved-section">
+        <h4>Saved predictions</h4>
+        <button type="button" class="saved-refresh" id="savedRefresh">Refresh list</button>
+        <div id="savedList" class="saved-list"></div>
+      </div>
+      <div id="err" class="error" style="display:none;"></div>
+    </aside>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div id="mapPlaceholder">Upload an image, click &quot;Show original on map&quot; to preview, then Classify for prediction.</div>
+      <div class="view-toggle" id="viewToggle" style="display:none;">
+        <button type="button" id="btnViewImage" class="active">Image</button>
+        <button type="button" id="btnViewMap">Map</button>
+        <a id="btnDownloadGeotiff" href="#" class="view-toggle-dl" style="display:none;" download>Download GeoTIFF</a>
+      </div>
+      <div class="result-img-wrap" id="resultImgWrap">
+        <div class="swipe-container" id="swipeContainer" style="display:none;">
+          <div class="swipe-frame" id="swipeFrame">
+            <div class="base-layer"><img id="swipeBase" alt="Base" /></div>
+            <div class="pred-layer" id="predLayer"><img id="swipePred" alt="Prediction" /></div>
+            <div class="swipe-divider" id="swipeDivider"></div>
+          </div>
+          <span class="swipe-labels">Base</span>
+          <span class="swipe-labels right-label">Prediction</span>
+        </div>
+        <img id="resultImage" alt="Result with predictions" style="display:none;" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Load from same origin to avoid Tracking Prevention blocking CDN storage -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/georaster.browser.bundle.min.js"></script>
+  <script src="js/proj4.js"></script>
+  <script src="js/georaster-layer-for-leaflet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() { initMap(); }, 100);
+      loadSavedList();
+      var fileInput = document.getElementById('file');
+      var btnShowOnMap = document.getElementById('btnShowOnMap');
+      fileInput.addEventListener('change', function() {
+        var hasFiles = fileInput.files && fileInput.files.length > 0;
+        btnShowOnMap.style.display = hasFiles ? 'block' : 'none';
+        if (!hasFiles) {
+          if (imageOverlay && map) { map.removeLayer(imageOverlay); imageOverlay = null; }
+          if (previewGeorasterLayer && map) { map.removeLayer(previewGeorasterLayer); previewGeorasterLayer = null; }
+          document.getElementById('mapPlaceholder').style.display = 'block';
+          document.getElementById('resultImgWrap').classList.remove('visible');
+        }
+      });
+      btnShowOnMap.addEventListener('click', function() {
+        var fileList = fileInput.files;
+        if (!fileList || fileList.length === 0) return;
+        var fd = new FormData();
+        for (var i = 0; i < fileList.length; i++) fd.append('image', fileList[i]);
+        btnShowOnMap.disabled = true;
+        btnShowOnMap.textContent = 'Loading…';
+        fetch('/preview', { method: 'POST', body: fd }).then(function(r) {
+          return r.json().then(function(data) {
+            if (!r.ok) throw new Error(data.error || 'Preview failed');
+            return data;
+          });
+        }).then(function(data) {
+          document.getElementById('err').style.display = 'none';
+          initMap();
+          if (imageOverlay) { map.removeLayer(imageOverlay); imageOverlay = null; }
+          if (georasterLayer) { map.removeLayer(georasterLayer); georasterLayer = null; }
+          if (previewGeorasterLayer) { map.removeLayer(previewGeorasterLayer); previewGeorasterLayer = null; }
+          document.getElementById('mapPlaceholder').style.display = 'none';
+          var dataUrl = data.image_b64 ? ('data:image/png;base64,' + data.image_b64) : null;
+          var bounds = data.bounds && data.bounds.length === 4 ? L.latLngBounds([data.bounds[0], data.bounds[1]], [data.bounds[2], data.bounds[3]]) : null;
+          if (bounds) document.getElementById('resultImgWrap').classList.remove('visible');
+          else {
+            document.getElementById('resultImgWrap').classList.add('visible');
+            document.getElementById('resultImage').style.display = 'block';
+            document.getElementById('swipeContainer').style.display = 'none';
+          }
+          if (data.preview_geotiff_id && bounds) {
+            var geotiffUrl = '/preview/' + encodeURIComponent(data.preview_geotiff_id) + '/geotiff';
+            var statusEl = document.getElementById('status');
+            if (statusEl) statusEl.textContent = 'Loading full-resolution image (like ArcGIS)…';
+            fetch(geotiffUrl).then(function(r) {
+              if (!r.ok) throw new Error('GeoTIFF load failed');
+              return r.arrayBuffer();
+            }).then(function(ab) {
+              var parseFn = typeof parse_georaster !== 'undefined' ? parse_georaster : (typeof parseGeoraster !== 'undefined' ? parseGeoraster : null);
+              if (parseFn) return parseFn(ab);
+              if (typeof parseFromUrl !== 'undefined') return parseFromUrl(geotiffUrl);
+              throw new Error('Georaster parser not loaded');
+            }).then(function(georaster) {
+              var LayerCtor = window.GeoRasterLayer;
+              if (!LayerCtor) throw new Error('GeoRasterLayer not loaded');
+              var stretch = (data && data.stretch) || null;
+              function rgbFromValues(values) {
+                if (!values || values.length < 3) return null;
+                var r = Number(values[0]), g = Number(values[1]), b = Number(values[2]);
+                if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+                function scale(v, i) {
+                  if (stretch && stretch[i]) {
+                    var lo = stretch[i][0], hi = stretch[i][1];
+                    if (hi <= lo) return 0;
+                    return ((v - lo) / (hi - lo)) * 255;
+                  }
+                  if (v <= 1 && v >= 0) return v * 255;
+                  var maxVal = 4000;
+                  if (v > 4000) maxVal = 65535;
+                  return (v * 255) / maxVal;
+                }
+                r = Math.min(255, Math.max(0, Math.round(scale(r, 0))));
+                g = Math.min(255, Math.max(0, Math.round(scale(g, 1))));
+                b = Math.min(255, Math.max(0, Math.round(scale(b, 2))));
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+              }
+              previewGeorasterLayer = new LayerCtor({
+                georaster: georaster,
+                opacity: 1,
+                pixelValuesToColorFn: rgbFromValues,
+                resolution: 256,
+                resampleMethod: 'bilinear'
+              });
+              previewGeorasterLayer.addTo(map);
+              map.fitBounds(bounds, { padding: [24, 24], maxZoom: 22 });
+              if (statusEl) statusEl.textContent = 'Full resolution loaded. Zoom in to see minute details.';
+              if (map) setTimeout(function() { map.invalidateSize(); }, 50);
+            }).catch(function(err) {
+              console.warn('Full-res preview failed', err);
+              if (statusEl) statusEl.textContent = 'Full resolution could not load. Using preview quality. Reload the page and try again for ArcGIS-like zoom.';
+              fallbackPreviewOverlay(dataUrl, bounds);
+              if (map) setTimeout(function() { map.invalidateSize(); }, 50);
+            });
+          } else if (bounds && dataUrl) {
+            fallbackPreviewOverlay(dataUrl, bounds);
+            if (map) setTimeout(function() { map.invalidateSize(); }, 50);
+          } else if (dataUrl) {
+            document.getElementById('resultImage').src = dataUrl;
+            document.getElementById('resultImage').alt = 'Original image (no map position — use GeoTIFF + .tfw for map)';
+            if (map) setTimeout(function() { map.invalidateSize(); }, 50);
+          }
+          function fallbackPreviewOverlay(url, b) {
+            if (!url || !b) return;
+            imageOverlay = L.imageOverlay(url, b, { interactive: false }).addTo(map);
+            map.fitBounds(b, { padding: [24, 24], maxZoom: 18 });
+            document.getElementById('resultImgWrap').classList.remove('visible');
+          }
+        }).catch(function(err) {
+          document.getElementById('err').textContent = err.message || 'Preview failed';
+          document.getElementById('err').style.display = 'block';
+        }).finally(function() {
+          btnShowOnMap.disabled = false;
+          btnShowOnMap.textContent = 'Show original on map';
+        });
+      });
+    });
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(x => {
+        const h = Math.round(x).toString(16);
+        return h.length === 1 ? '0' + h : h;
+      }).join('');
+    }
+
+    const CLASS_COLORS = [
+      [18, 92, 18], [52, 118, 52], [132, 92, 58], [26, 105, 26], [68, 68, 74],
+      [0, 88, 118], [0, 55, 85], [22, 95, 48], [145, 110, 0], [32, 72, 105],
+      [0, 62, 98], [118, 72, 38], [52, 68, 30], [88, 88, 92], [118, 22, 22]
+    ];
+    const ID2LABEL = [
+      "arbor woodland", "artificial grassland", "dry cropland", "garden plot", "industrial land",
+      "irrigated land", "lake", "natural grassland", "paddy field", "pond", "river",
+      "rural residential", "shrub land", "traffic land", "urban residential"
+    ];
+
+    const MODEL_METRICS = {
+      accuracy: 0.8757,
+      macro: { precision: 0.8762, recall: 0.8757, f1: 0.8755 },
+      weighted: { precision: 0.8762, recall: 0.8757, f1: 0.8755 },
+      perClass: [
+        { name: "arbor woodland", precision: 0.8868, recall: 0.9130, f1: 0.8997 },
+        { name: "artificial grassland", precision: 0.9173, recall: 0.9425, f1: 0.9297 },
+        { name: "dry cropland", precision: 0.9320, recall: 0.9395, f1: 0.9358 },
+        { name: "garden plot", precision: 0.8639, recall: 0.8380, f1: 0.8508 },
+        { name: "industrial land", precision: 0.8967, recall: 0.8940, f1: 0.8953 },
+        { name: "irrigated land", precision: 0.8817, recall: 0.7865, f1: 0.8314 },
+        { name: "lake", precision: 0.7597, recall: 0.8045, f1: 0.7814 },
+        { name: "natural grassland", precision: 0.9770, recall: 0.9750, f1: 0.9760 },
+        { name: "paddy field", precision: 0.9305, recall: 0.9580, f1: 0.9441 },
+        { name: "pond", precision: 0.7646, recall: 0.7405, f1: 0.7523 },
+        { name: "river", precision: 0.8124, recall: 0.7945, f1: 0.8033 },
+        { name: "rural residential", precision: 0.8875, recall: 0.8325, f1: 0.8591 },
+        { name: "shrub land", precision: 0.8936, recall: 0.9195, f1: 0.9064 },
+        { name: "traffic land", precision: 0.9577, recall: 0.9510, f1: 0.9543 },
+        { name: "urban residential", precision: 0.7821, recall: 0.8470, f1: 0.8133 }
+      ]
+    };
+
+    let map = null;
+    let predChartInstance = null;
+    let evalChartInstance = null;
+    let imageOverlay = null;
+    let georasterLayer = null;
+    let previewGeorasterLayer = null;
+
+    function initMap() {
+      if (map) return map;
+      map = L.map('map', { center: [20, 0], zoom: 2, maxZoom: 22 });
+      map.attributionControl.setPrefix('');
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO &copy; OpenStreetMap' }).addTo(map);
+      return map;
+    }
+
+    function buildMapLegend(sorted) {
+      let html = '<div class="pred-legend"><h4>Land cover (top 5)</h4><ul>';
+      sorted.forEach(([name, pct]) => {
+        const idx = ID2LABEL.indexOf(name);
+        const rgb = CLASS_COLORS[idx >= 0 ? idx : 0];
+        const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+        html += '<li><span class="swatch" style="background:' + hex + '"></span><span>' + name + '</span><span class="pct">' + (pct * 100).toFixed(1) + '%</span></li>';
+      });
+      html += '</ul></div>';
+      return html;
+    }
+
+    function updatePredictionChart(predictions) {
+      const canvas = document.getElementById('predChart');
+      if (!canvas || !predictions) return;
+      const sorted = Object.entries(predictions).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(([n]) => n.length > 14 ? n.slice(0, 12) + '..' : n);
+      const data = sorted.map(([, v]) => Math.round(v * 100));
+      const colors = sorted.map(([n]) => {
+        const idx = ID2LABEL.indexOf(n);
+        const rgb = CLASS_COLORS[idx >= 0 ? idx : 0];
+        return rgbToHex(rgb[0], rgb[1], rgb[2]);
+      });
+      const conf = Math.max(...Object.values(predictions)) * 100;
+      document.getElementById('confidenceLine').textContent = 'Confidence: ' + conf.toFixed(1) + '%';
+      document.getElementById('confidenceBar').style.width = conf + '%';
+      if (predChartInstance) predChartInstance.destroy();
+      predChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{ label: 'Prob (%)', data: data, backgroundColor: colors }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { max: 100, grid: { color: '#e0e4e8' }, ticks: { color: '#5f6368', maxTicksLimit: 6 } },
+            y: { grid: { display: false }, ticks: { color: '#5f6368', font: { size: 9 } } }
+          }
+        }
+      });
+    }
+
+    function renderModelMetrics() {
+      const block = document.getElementById('modelMetricsBlock');
+      const table = document.getElementById('modelMetricsTable');
+      if (!table) return;
+      let html = '<tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th></tr>';
+      MODEL_METRICS.perClass.forEach(r => {
+        html += '<tr><td>' + r.name + '</td><td>' + (r.precision * 100).toFixed(2) + '%</td><td>' + (r.recall * 100).toFixed(2) + '%</td><td>' + (r.f1 * 100).toFixed(2) + '%</td></tr>';
+      });
+      html += '<tr class="accuracy-row"><td>Accuracy</td><td colspan="3">' + (MODEL_METRICS.accuracy * 100).toFixed(2) + '%</td></tr>';
+      html += '<tr><td>Macro avg</td><td>' + (MODEL_METRICS.macro.precision * 100).toFixed(2) + '%</td><td>' + (MODEL_METRICS.macro.recall * 100).toFixed(2) + '%</td><td>' + (MODEL_METRICS.macro.f1 * 100).toFixed(2) + '%</td></tr>';
+      table.innerHTML = html;
+      const evalCanvas = document.getElementById('evalChart');
+      if (evalCanvas && typeof Chart !== 'undefined') {
+        if (evalChartInstance) evalChartInstance.destroy();
+        evalChartInstance = new Chart(evalCanvas, {
+          type: 'bar',
+          data: {
+            labels: MODEL_METRICS.perClass.map(r => r.name.length > 12 ? r.name.slice(0,10)+'..' : r.name),
+            datasets: [
+              { label: 'Precision', data: MODEL_METRICS.perClass.map(r => r.precision * 100), backgroundColor: 'rgba(233,69,96,0.7)' },
+              { label: 'Recall', data: MODEL_METRICS.perClass.map(r => r.recall * 100), backgroundColor: 'rgba(0,191,255,0.7)' },
+              { label: 'F1', data: MODEL_METRICS.perClass.map(r => r.f1 * 100), backgroundColor: 'rgba(50,205,50,0.7)' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#5f6368', font: { size: 10 } } } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#5f6368', maxRotation: 45, font: { size: 8 } } },
+              y: { max: 100, grid: { color: '#e0e4e8' }, ticks: { color: '#5f6368' } }
+            }
+          }
+        });
+      }
+    }
+
+    document.getElementById('modelMetricsToggle').addEventListener('click', function() {
+      const block = document.getElementById('modelMetricsBlock');
+      if (block.style.display === 'none') {
+        block.style.display = 'block';
+        this.textContent = '▲ Model performance (eval set)';
+        if (!evalChartInstance) renderModelMetrics();
+      } else {
+        block.style.display = 'none';
+        this.textContent = '▼ Model performance (eval set)';
+      }
+    });
+
+    function displayPredictionResult(data) {
+      if (!data) return;
+      const resultDiv = document.getElementById('result');
+      const status = document.getElementById('status');
+      status.textContent = 'Done.';
+      const predictions = data.predictions || {};
+      const topPredEl = document.getElementById('topPred');
+      if (topPredEl) topPredEl.innerHTML = '<strong>' + (data.top_class || '') + '</strong> — ' + (data.top_pct ?? 0) + '%';
+      const sorted = Object.entries(predictions).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const legend = document.getElementById('legend');
+      if (legend) legend.innerHTML = '';
+      sorted.forEach(([name, pct]) => {
+        const idx = ID2LABEL.indexOf(name);
+        const rgb = CLASS_COLORS[idx >= 0 ? idx : 0];
+        const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+        const li = document.createElement('li');
+        li.innerHTML = '<span class="swatch" style="background:' + hex + '"></span><span>' + name + '</span><span class="pct">' + (pct * 100).toFixed(1) + '%</span>';
+        if (legend) legend.appendChild(li);
+      });
+      if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      updatePredictionChart(predictions);
+      initMap();
+      const dataUrl = data.image_b64 ? ('data:image/png;base64,' + data.image_b64) : null;
+      const baseUrl = data.base_image_b64 ? ('data:image/png;base64,' + data.base_image_b64) : null;
+      document.getElementById('mapPlaceholder').style.display = 'none';
+      document.getElementById('resultImgWrap').classList.add('visible');
+      document.getElementById('viewToggle').style.display = 'block';
+      document.getElementById('btnViewImage').classList.add('active');
+      document.getElementById('btnViewMap').classList.remove('active');
+      var hasBounds = data.bounds && data.bounds.length === 4;
+      document.getElementById('btnViewMap').disabled = !hasBounds;
+      document.getElementById('btnViewMap').title = hasBounds ? 'View result on map' : 'Georeferenced bounds not available (upload a GeoTIFF with CRS for map view)';
+      if (baseUrl && dataUrl) {
+        document.getElementById('swipeContainer').style.display = 'flex';
+        document.getElementById('resultImage').style.display = 'none';
+        document.getElementById('swipeBase').src = baseUrl;
+        document.getElementById('swipePred').src = dataUrl;
+        setupSwipe(document.getElementById('swipeContainer'));
+      } else if (dataUrl) {
+        document.getElementById('swipeContainer').style.display = 'none';
+        document.getElementById('resultImage').style.display = 'block';
+        document.getElementById('resultImage').src = dataUrl;
+      }
+      if (imageOverlay) { map.removeLayer(imageOverlay); imageOverlay = null; }
+      if (georasterLayer) { map.removeLayer(georasterLayer); georasterLayer = null; }
+      if (previewGeorasterLayer) { map.removeLayer(previewGeorasterLayer); previewGeorasterLayer = null; }
+      const hasGeotiff = data.geotiff_available && data.prediction_id;
+      const dlLink = document.getElementById('btnDownloadGeotiff');
+      if (dlLink) {
+        if (hasGeotiff) {
+          dlLink.href = '/predictions/' + encodeURIComponent(data.prediction_id) + '/geotiff';
+          dlLink.download = (data.original_filename || 'prediction').replace(/\.[^.]+$/, '') + '_classified.tif';
+          dlLink.style.display = 'inline-block';
+        } else {
+          dlLink.style.display = 'none';
+        }
+      }
+      if (data.bounds && data.bounds.length === 4) {
+        const bounds = L.latLngBounds([data.bounds[0], data.bounds[1]], [data.bounds[2], data.bounds[3]]);
+        if (hasGeotiff && typeof window.GeoRasterLayer !== 'undefined') {
+          var geotiffUrl = '/predictions/' + encodeURIComponent(data.prediction_id) + '/geotiff';
+          var parsePromise = (typeof parseFromUrl !== 'undefined')
+            ? parseFromUrl(geotiffUrl)
+            : fetch(geotiffUrl).then(function(r) { return r.arrayBuffer(); }).then(function(ab) {
+                if (typeof parse_georaster !== 'undefined') return parse_georaster(ab);
+                throw new Error('georaster not loaded');
+              });
+          parsePromise.then(function(georaster) {
+            try {
+              var LayerCtor = window.GeoRasterLayer;
+              if (!LayerCtor) { throw new Error('GeoRasterLayer not loaded'); }
+              function rgbFromValues(values) {
+                if (!values || values.length < 3) return null;
+                var r = Number(values[0]), g = Number(values[1]), b = Number(values[2]);
+                if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+                var minVal = 0, maxVal = 4000;
+                if (r <= 1 && g <= 1 && b <= 1) { r *= 255; g *= 255; b *= 255; }
+                else if (r > 255 || g > 255 || b > 255) {
+                  if (Math.max(r, g, b) > 4000) maxVal = 65535;
+                  var scale = 255 / maxVal;
+                  r = (r - minVal) * scale; g = (g - minVal) * scale; b = (b - minVal) * scale;
+                }
+                r = Math.min(255, Math.max(0, Math.round(r)));
+                g = Math.min(255, Math.max(0, Math.round(g)));
+                b = Math.min(255, Math.max(0, Math.round(b)));
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+              }
+              georasterLayer = new LayerCtor({
+                georaster: georaster,
+                opacity: 1,
+                pixelValuesToColorFn: rgbFromValues,
+                resolution: 256,
+                resampleMethod: 'bilinear'
+              });
+              georasterLayer.addTo(map);
+              map.fitBounds(bounds, { padding: [24, 24], maxZoom: 18 });
+              document.getElementById('resultImgWrap').classList.remove('visible');
+              document.getElementById('map').style.display = 'block';
+              document.getElementById('btnViewMap').classList.add('active');
+              document.getElementById('btnViewImage').classList.remove('active');
+            } catch (e) {
+              console.warn('GeoRasterLayer failed, using PNG overlay', e);
+              imageOverlay = L.imageOverlay(dataUrl, bounds).addTo(map);
+              map.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+            }
+            setTimeout(function() { if (map) map.invalidateSize(); }, 50);
+          }).catch(function(err) {
+            console.warn('GeoTIFF load failed, using PNG overlay', err);
+            if (dataUrl) { imageOverlay = L.imageOverlay(dataUrl, bounds).addTo(map); map.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 }); }
+            setTimeout(function() { if (map) map.invalidateSize(); }, 50);
+          });
+        } else if (dataUrl) {
+          imageOverlay = L.imageOverlay(dataUrl, bounds).addTo(map);
+          map.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+          setTimeout(function() { if (map) map.invalidateSize(); }, 50);
+        }
+      } else {
+        setTimeout(function() { if (map) map.invalidateSize(); }, 50);
+      }
+      const crsEl = document.getElementById('imageCrs');
+      if (crsEl) {
+        crsEl.style.display = data.crs ? 'block' : 'none';
+        crsEl.textContent = data.crs ? 'Image CRS: ' + data.crs : '';
+      }
+      const legendControl = L.control({ position: 'bottomleft' });
+      legendControl.onAdd = function() {
+        const div = L.DomUtil.create('div', '');
+        div.innerHTML = buildMapLegend(sorted);
+        return div;
+      };
+      if (map._predLegend) map.removeControl(map._predLegend);
+      legendControl.addTo(map);
+      map._predLegend = legendControl;
+    }
+
+    function parseJsonResponse(text, fallbackError) {
+      const t = (text || '').trim();
+      if (t.startsWith('<')) return { _html: true, message: fallbackError || 'Server returned a page instead of data. Open the app at http://127.0.0.1:5000' };
+      try {
+        return JSON.parse(t);
+      } catch (_) {
+        return { _parseError: true, message: fallbackError || 'Invalid response' };
+      }
+    }
+
+    async function loadSavedList() {
+      const listEl = document.getElementById('savedList');
+      listEl.innerHTML = '<span class="placeholder">Loading…</span>';
+      try {
+        const r = await fetch('/predictions');
+        const text = await r.text();
+        const data = parseJsonResponse(text);
+        if (data._html || data._parseError) {
+          listEl.innerHTML = '<span class="error">' + (data.message || 'Could not load list.') + '</span>';
+          return;
+        }
+        if (!r.ok) {
+          listEl.innerHTML = '<span class="error">' + (data.error || 'Failed to load') + '</span>';
+          return;
+        }
+        const entries = data.predictions || [];
+        if (entries.length === 0) {
+          listEl.innerHTML = '<span class="placeholder">No saved predictions yet. Classify an image to save one.</span>';
+          return;
+        }
+        listEl.innerHTML = '';
+        entries.forEach(function(entry) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'saved-item';
+          btn.dataset.id = entry.id;
+          btn.innerHTML = '<span class="top">' + (entry.top_class || '—') + ' (' + (entry.top_pct || 0) + '%)</span><span class="meta">' + (entry.created_at || '') + (entry.original_filename ? ' · ' + entry.original_filename : '') + '</span>';
+          btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            if (!id) return;
+            const origHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="meta">Loading…</span>';
+            try {
+              const r = await fetch('/predictions/' + encodeURIComponent(id));
+              const text = await r.text();
+              const data = parseJsonResponse(text, 'Could not load prediction.');
+              if (data._html || data._parseError) {
+                throw new Error(data.message || 'Invalid response');
+              }
+              if (!r.ok) throw new Error(data.error || 'Not found');
+              document.getElementById('err').style.display = 'none';
+              displayPredictionResult(data);
+            } catch (err) {
+              document.getElementById('err').textContent = err.message;
+              document.getElementById('err').style.display = 'block';
+            }
+            this.disabled = false;
+            this.innerHTML = origHtml;
+          });
+          listEl.appendChild(btn);
+        });
+      } catch (err) {
+        listEl.innerHTML = '<span class="error">' + err.message + '</span>';
+      }
+    }
+
+    document.getElementById('savedRefresh').addEventListener('click', loadSavedList);
+
+    function getSegButtons() {
+      return [document.getElementById('btnFast'), document.getElementById('btnPixel')];
+    }
+
+    document.getElementById('btnFast').addEventListener('click', function() {
+      document.getElementById('segMode').value = 'fast';
+      document.getElementById('form').requestSubmit();
+    });
+    document.getElementById('btnPixel').addEventListener('click', function() {
+      document.getElementById('segMode').value = 'pixel';
+      document.getElementById('form').requestSubmit();
+    });
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('file');
+      const segButtons = getSegButtons();
+      const status = document.getElementById('status');
+      const resultDiv = document.getElementById('result');
+      const errDiv = document.getElementById('err');
+      const fileList = fileInput.files;
+      if (!fileList.length) return;
+      const hasTif = Array.from(fileList).some(f => /\.(tif|tiff|png|jpg|jpeg)$/i.test(f.name));
+      if (!hasTif) {
+        errDiv.style.display = 'block';
+        errDiv.textContent = 'Please select at least one image (.tif, .png, .jpg).';
+        return;
+      }
+      errDiv.style.display = 'none';
+      resultDiv.style.display = 'none';
+      document.getElementById('mapPlaceholder').style.display = 'block';
+      document.getElementById('resultImgWrap').classList.remove('visible');
+      document.getElementById('viewToggle').style.display = 'none';
+      status.textContent = '';
+      document.getElementById('progressWrap').classList.add('visible');
+      const segMode = document.getElementById('segMode').value;
+      document.getElementById('progressText').textContent = segMode === 'pixel'
+        ? 'Classifying (pixel-level)… This may take a long time for large images.'
+        : 'Classifying… This may take several minutes for large images.';
+      segButtons.forEach(function(b) { b.disabled = true; });
+      const fd = new FormData();
+      fd.append('seg_mode', segMode);
+      for (let i = 0; i < fileList.length; i++) {
+        fd.append('image', fileList[i]);
+      }
+      try {
+        const r = await fetch('/predict-stream', { method: 'POST', body: fd });
+        if (!r.ok) {
+          const text = await r.text();
+          let data;
+          try { data = JSON.parse(text); } catch (_) { data = {}; }
+          throw new Error(data.error || ('Server error ' + r.status));
+        }
+        if (r.status === 413) throw new Error('File too large. Maximum size is 2 GB.');
+        const reader = r.body.getReader();
+        const dec = new TextDecoder();
+        let buffer = '';
+        document.getElementById('mapPlaceholder').style.display = 'none';
+        document.getElementById('resultImgWrap').classList.add('visible');
+        document.getElementById('viewToggle').style.display = 'block';
+        document.getElementById('swipeContainer').style.display = 'none';
+        document.getElementById('resultImage').style.display = 'block';
+        const streamImg = document.getElementById('resultImage');
+        streamImg.src = '';
+        let doneData = null;
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += dec.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() || '';
+          for (let i = 0; i < parts.length; i++) {
+            const chunk = parts[i];
+            const dataMatch = chunk.match(/^data:\s*(.+)$/m);
+            if (!dataMatch) continue;
+            let event;
+            try { event = JSON.parse(dataMatch[1]); } catch (_) { continue; }
+            if (event.type === 'error') {
+              throw new Error(event.error || 'Prediction failed');
+            }
+            if (event.type === 'start' && event.bounds && event.bounds.length === 4) {
+              initMap();
+              const b = event.bounds;
+              const leafletBounds = L.latLngBounds([b[0], b[1]], [b[2], b[3]]);
+              map.fitBounds(leafletBounds, { padding: [24, 24], maxZoom: 16 });
+              document.getElementById('btnViewMap').disabled = false;
+              document.getElementById('btnViewImage').classList.remove('active');
+              document.getElementById('btnViewMap').classList.add('active');
+              document.getElementById('resultImgWrap').classList.remove('visible');
+              document.getElementById('mapPlaceholder').style.display = 'none';
+              document.getElementById('map').style.display = 'block';
+              if (map._predLegend) map.removeControl(map._predLegend);
+              document.getElementById('progressText').textContent = 'Classifying… 0% — map zoomed to image area';
+            }
+            if (event.type === 'progress' && event.image_b64) {
+              streamImg.src = 'data:image/png;base64,' + event.image_b64;
+              document.getElementById('progressText').textContent =
+                'Classifying… ' + Math.round((event.progress || 0) * 100) + '%';
+            }
+            if (event.type === 'done') {
+              doneData = event;
+            }
+          }
+        }
+        document.getElementById('progressWrap').classList.remove('visible');
+        if (doneData) {
+          displayPredictionResult(doneData);
+          if (doneData.prediction_id) loadSavedList();
+        } else {
+          throw new Error('No result received');
+        }
+      } catch (err) {
+        document.getElementById('progressWrap').classList.remove('visible');
+        status.textContent = '';
+        errDiv.textContent = err.message;
+        errDiv.style.display = 'block';
+        document.getElementById('resultImgWrap').classList.remove('visible');
+        if (map) document.getElementById('mapPlaceholder').style.display = 'block';
+      }
+      getSegButtons().forEach(function(b) { b.disabled = false; });
+    });
+
+    function setupSwipe(container) {
+      const frame = document.getElementById('swipeFrame');
+      const baseImg = document.getElementById('swipeBase');
+      const predImg = document.getElementById('swipePred');
+      const divider = document.getElementById('swipeDivider');
+      let pct = 50;
+      function syncPredSize() {
+        const frameRect = frame.getBoundingClientRect();
+        const baseRect = baseImg.getBoundingClientRect();
+        predImg.style.left = (baseRect.left - frameRect.left) + 'px';
+        predImg.style.top = (baseRect.top - frameRect.top) + 'px';
+        predImg.style.width = baseRect.width + 'px';
+        predImg.style.height = baseRect.height + 'px';
+      }
+      function update() {
+        pct = Math.max(2, Math.min(98, pct));
+        predImg.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+        const frameRect = frame.getBoundingClientRect();
+        const baseRect = baseImg.getBoundingClientRect();
+        const divLeft = baseRect.left - frameRect.left + (baseRect.width * pct / 100);
+        divider.style.left = divLeft + 'px';
+      }
+      baseImg.addEventListener('load', function() {
+        syncPredSize();
+        update();
+      });
+      if (baseImg.complete) {
+        syncPredSize();
+        update();
+      } else {
+        update();
+      }
+      window.addEventListener('resize', function() {
+        syncPredSize();
+        update();
+      });
+      function move(e) {
+        const frameRect = frame.getBoundingClientRect();
+        const baseRect = baseImg.getBoundingClientRect();
+        const x = (e.touches ? e.touches[0].clientX : e.clientX) - baseRect.left;
+        pct = (x / baseRect.width) * 100;
+        update();
+      }
+      function stop() {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', stop);
+        document.removeEventListener('touchmove', move, { passive: true });
+        document.removeEventListener('touchend', stop);
+      }
+      divider.addEventListener('mousedown', function() {
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', stop);
+      });
+      divider.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        document.addEventListener('touchmove', move, { passive: true });
+        document.addEventListener('touchend', stop);
+      });
+      frame.addEventListener('click', function(e) {
+        if (e.target === divider || e.target === predImg) return;
+        const baseRect = baseImg.getBoundingClientRect();
+        const x = (e.clientX - baseRect.left) / baseRect.width * 100;
+        pct = x;
+        update();
+      });
+    }
+
+    document.getElementById('btnViewImage').addEventListener('click', function() {
+      document.getElementById('resultImgWrap').classList.add('visible');
+      document.getElementById('btnViewImage').classList.add('active');
+      document.getElementById('btnViewMap').classList.remove('active');
+    });
+    document.getElementById('btnViewMap').addEventListener('click', function() {
+      document.getElementById('resultImgWrap').classList.remove('visible');
+      document.getElementById('btnViewMap').classList.add('active');
+      document.getElementById('btnViewImage').classList.remove('active');
+    });
+  </script>
+</body>
+</html>

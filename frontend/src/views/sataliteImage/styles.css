@@ -1,0 +1,833 @@
+/* ── Satellite Image Page — Full-screen map with floating panels ── */
+
+/* Full viewport map — sits behind sidebar (z:1029) and navbar (z:1028) */
+.sat-page {
+  position: fixed;
+  inset: 0;
+  z-index: 1027;
+  overflow: hidden;
+}
+
+.sat-map-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ── Floating Controls Panel (top-left, right of sidebar) ── */
+.sat-controls-panel {
+  position: absolute;
+  top: 72px;
+  left: 280px;
+  z-index: 2;
+  width: 320px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: satSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media screen and (max-width: 991px) {
+  .sat-controls-panel {
+    left: 16px;
+    top: 80px;
+    width: 300px;
+  }
+}
+
+.sat-controls-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.sat-controls-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sat-controls-panel::-webkit-scrollbar-thumb {
+  background: rgba(206, 17, 38, 0.22);
+  border-radius: 4px;
+}
+
+/* Shared card shell — matches Saved Predictions + Object Detection panel */
+.sat-side-card {
+  padding: 10px;
+  border: 1px solid var(--geoai-od-card-border);
+  border-radius: 10px;
+  background: var(--geoai-od-card-bg);
+  box-shadow: var(--geoai-od-card-shadow);
+}
+
+.sat-side-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--geoai-od-accent);
+  margin-bottom: 6px;
+}
+
+.sat-controls-panel > .sat-side-card {
+  margin-top: 12px;
+}
+
+/* ── Floating Export Panel (bottom-left, right of sidebar) ── */
+.sat-export-panel {
+  position: absolute;
+  bottom: 24px;
+  left: 280px;
+  z-index: 2;
+  animation: satFadeUp 0.4s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media screen and (max-width: 991px) {
+  .sat-export-panel {
+    left: 16px;
+  }
+}
+
+/* ── Glass Panel (= Object Detection — same shell as Saved Predictions) ── */
+.glass-panel {
+  background: var(--geoai-od-card-bg);
+  border: 1px solid var(--geoai-od-card-border);
+  border-radius: 10px;
+  box-shadow: var(--geoai-od-card-shadow);
+  color: var(--geoai-od-on-light-text);
+  overflow: hidden;
+}
+
+/* ── Glass Panel Header ── */
+.glass-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(206, 17, 38, 0.12);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.glass-panel-header:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+.glass-panel-header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--geoai-od-accent);
+}
+.glass-panel-toggle {
+  background: none;
+  border: none;
+  color: var(--geoai-od-on-light-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.3s, color 0.2s;
+}
+.glass-panel-toggle:hover {
+  color: var(--geoai-od-on-light-text);
+}
+.glass-panel-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* ── Glass Panel Body ── */
+.glass-panel-body {
+  padding: 16px 18px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease,
+              padding 0.3s ease;
+  max-height: 800px;
+  opacity: 1;
+}
+.glass-panel-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ── Form Elements ── */
+.sat-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--geoai-od-on-light-muted);
+  margin-bottom: 6px;
+}
+
+.sat-file-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--geoai-od-input-bg);
+  border: 1px dashed var(--geoai-od-input-border);
+  border-radius: 10px;
+  color: var(--geoai-od-on-light-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sat-file-btn:hover {
+  background: #fff;
+  border-color: var(--geoai-od-ring);
+  color: var(--geoai-od-on-light-text);
+}
+.sat-file-btn .file-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--geoai-od-accent-softer);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.sat-file-btn .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.sat-file-btn.has-file {
+  border-color: var(--geoai-od-border-strong);
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--geoai-od-accent);
+  border-style: solid;
+}
+
+.sat-demo-ortho-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: linear-gradient(135deg, var(--geoai-od-accent-soft), var(--geoai-od-accent-softer));
+  border: 1px solid var(--geoai-od-border-strong);
+  border-radius: 10px;
+  color: var(--geoai-od-accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.sat-demo-ortho-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(206, 17, 38, 0.28), rgba(206, 17, 38, 0.18));
+  border-color: rgba(206, 17, 38, 0.55);
+  color: var(--geoai-od-on-light-text);
+}
+.sat-demo-ortho-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sat-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--geoai-od-input-bg);
+  border: 1px solid var(--geoai-od-input-border);
+  border-radius: 10px;
+  color: var(--geoai-od-on-light-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.sat-select:hover, .sat-select:focus {
+  border-color: var(--geoai-od-ring);
+  outline: none;
+  background-color: #fff;
+}
+.sat-select option {
+  background: #fff;
+  color: var(--geoai-od-on-light-text);
+}
+
+.sat-model-info {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.sat-model-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(206, 17, 38, 0.08);
+  color: var(--geoai-od-accent);
+  font-weight: 500;
+}
+
+/* ── Slider ── */
+.sat-slider-wrapper {
+  margin-top: 4px;
+}
+.sat-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.sat-slider-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--geoai-od-on-light-text);
+  font-variant-numeric: tabular-nums;
+}
+.sat-slider-optimal-btn {
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(206, 17, 38, 0.08);
+  color: var(--geoai-od-accent);
+  border: 1px solid rgba(206, 17, 38, 0.22);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sat-slider-optimal-btn:hover {
+  background: rgba(206, 17, 38, 0.14);
+  color: var(--geoai-od-accent-hover);
+}
+
+.sat-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--geoai-od-track-bg);
+  outline: none;
+  cursor: pointer;
+}
+.sat-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--geoai-od-accent);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px rgba(206, 17, 38, 0.25);
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.sat-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 5px var(--geoai-od-accent-glow);
+  transform: scale(1.1);
+}
+.sat-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--geoai-od-accent);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px rgba(206, 17, 38, 0.25);
+  cursor: pointer;
+}
+
+.sat-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--geoai-od-on-light-muted);
+}
+
+/* ── Predict Button ── */
+.sat-predict-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.sat-predict-btn.ready {
+  background: linear-gradient(135deg, var(--geoai-od-accent), var(--geoai-od-accent-hover));
+  color: #fff;
+  box-shadow: 0 4px 18px var(--geoai-od-accent-glow);
+}
+.sat-predict-btn.ready:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(206, 17, 38, 0.45);
+}
+.sat-predict-btn.ready:active {
+  transform: translateY(0);
+}
+.sat-predict-btn.disabled {
+  background: rgba(41, 37, 36, 0.06);
+  color: var(--geoai-od-on-light-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.sat-predict-btn.processing {
+  background: linear-gradient(135deg, var(--geoai-od-processing-start), var(--geoai-od-processing-end));
+  color: #fff;
+  cursor: wait;
+}
+.sat-predict-btn.processing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: satShimmer 1.5s infinite;
+}
+
+.sat-missing-info {
+  font-size: 11px;
+  color: var(--geoai-od-on-light-muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Dividers ── */
+.sat-divider {
+  height: 1px;
+  background: rgba(206, 17, 38, 0.12);
+  margin: 14px 0;
+}
+
+/* ── Progress Tracker (glass version) ── */
+.sat-progress {
+  margin-top: 14px;
+  animation: satFadeIn 0.3s ease both;
+}
+.sat-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sat-progress-phase {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sat-progress-pct {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.sat-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: var(--geoai-od-track-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.sat-progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.sat-progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: satShimmer 1.5s infinite;
+}
+.sat-progress-step {
+  font-size: 12px;
+  color: var(--geoai-od-on-light-muted);
+  margin-bottom: 6px;
+}
+.sat-progress-details {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--geoai-od-on-light-muted);
+}
+.sat-progress-detail-value {
+  color: var(--geoai-od-on-light-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dot steps */
+.sat-progress-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+}
+.sat-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--geoai-od-track-bg);
+  transition: all 0.3s;
+}
+.sat-progress-dot.active {
+  background: var(--geoai-od-accent);
+  box-shadow: 0 0 10px var(--geoai-od-accent-glow);
+  animation: satPulse 1.5s ease-in-out infinite;
+}
+.sat-progress-dot.completed {
+  background: var(--geoai-od-success);
+}
+.sat-progress-dot-line {
+  flex: 1;
+  height: 2px;
+  background: var(--geoai-od-track-bg);
+  transition: background 0.3s;
+}
+.sat-progress-dot-line.completed {
+  background: var(--geoai-od-success);
+}
+
+/* ── Export Button (same light card family) ── */
+.sat-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--geoai-od-card-bg);
+  border: 1px solid var(--geoai-od-card-border);
+  border-radius: 10px;
+  color: var(--geoai-od-on-light-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: var(--geoai-od-card-shadow);
+}
+.sat-export-btn:hover {
+  background: #fff;
+  border-color: var(--geoai-od-border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(206, 17, 38, 0.14);
+}
+.sat-export-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: var(--geoai-od-card-bg);
+  border: 1px solid var(--geoai-od-card-border);
+  border-radius: 10px;
+  box-shadow: var(--geoai-od-card-shadow);
+  overflow: hidden;
+  animation: satFadeUp 0.2s ease both;
+}
+.sat-export-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: var(--geoai-od-on-light-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.sat-export-option:hover {
+  background: rgba(206, 17, 38, 0.06);
+  color: var(--geoai-od-accent);
+}
+.sat-export-option + .sat-export-option {
+  border-top: 1px solid rgba(206, 17, 38, 0.1);
+}
+
+/* ── Detection Results Panel (on map, top-right) — same card shell ── */
+.sat-results-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1100;
+  background: var(--geoai-od-card-bg);
+  border: 1px solid var(--geoai-od-card-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: var(--geoai-od-on-light-text);
+  box-shadow: var(--geoai-od-card-shadow);
+  min-width: 200px;
+  animation: satFadeIn 0.4s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* While drawing ROI, panel blocks map — disable hit-testing except on drag handle */
+.sat-results-panel.sat-results-panel--roi-drawing {
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+.sat-results-panel.sat-results-panel--roi-drawing .sat-results-drag-handle {
+  pointer-events: auto;
+}
+
+.sat-results-title.sat-results-drag-handle {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -4px -8px 10px -8px;
+  padding: 6px 8px 8px 8px;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--geoai-od-accent);
+  letter-spacing: 0.3px;
+}
+
+.sat-results-title.sat-results-drag-handle:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.sat-results-title.sat-results-drag-handle:active {
+  cursor: grabbing;
+}
+
+.sat-results-drag-hint {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: -2px;
+  opacity: 0.35;
+  font-weight: 700;
+}
+.sat-results-count {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--geoai-od-on-light-text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.sat-results-label {
+  font-size: 11px;
+  color: var(--geoai-od-on-light-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.sat-results-divider {
+  height: 1px;
+  background: rgba(206, 17, 38, 0.12);
+  margin: 10px 0;
+}
+.sat-results-meta {
+  font-size: 11px;
+  color: var(--geoai-od-on-light-muted);
+  line-height: 1.6;
+}
+
+/* ── Tip/Info Box ── */
+.sat-info-box {
+  background: rgba(206, 17, 38, 0.06);
+  border: 1px solid rgba(206, 17, 38, 0.18);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--geoai-od-accent-hover);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  animation: satFadeIn 0.3s ease both;
+}
+
+/* ── Error Box ── */
+.sat-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 8px;
+  animation: satShake 0.4s ease;
+}
+
+/* ── Keyframes ── */
+@keyframes satSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes satFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes satFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes satShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes satPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(206, 17, 38, 0.35); }
+  50% { box-shadow: 0 0 14px rgba(206, 17, 38, 0.55); }
+}
+
+@keyframes satShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes satSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* GeoTIFF map ROI (Mask R-CNN) — matches LULC hex/draw pattern */
+.sat-geotiff-map-wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Leaflet.draw toolbar: above tile/geo layers & prediction canvas; topright avoids app sidebar / left panel */
+.sat-geotiff-map-wrap .leaflet-control-container {
+  z-index: 2100;
+}
+.sat-geotiff-map-wrap .leaflet-draw-toolbar {
+  margin-top: 52px;
+}
+@media screen and (max-width: 991px) {
+  .sat-geotiff-map-wrap .leaflet-draw-toolbar {
+    margin-top: 64px;
+  }
+}
+
+.sat-roi-toolbar {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.sat-roi-toolbar > * {
+  pointer-events: auto;
+}
+
+.sat-roi-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--geoai-od-card-border);
+  background: var(--geoai-od-card-bg);
+  color: var(--geoai-od-on-light-muted);
+  box-shadow: var(--geoai-od-card-shadow);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sat-roi-fab:hover {
+  background: #fff;
+  color: var(--geoai-od-on-light-text);
+  border-color: var(--geoai-od-border-strong);
+}
+
+.sat-roi-fab-active {
+  background: rgba(206, 17, 38, 0.1);
+  color: var(--geoai-od-accent);
+  border-color: var(--geoai-od-accent);
+}
+
+.sat-roi-clear {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--geoai-od-card-border);
+  background: var(--geoai-od-card-bg);
+  color: var(--geoai-od-on-light-muted);
+  cursor: pointer;
+  box-shadow: var(--geoai-od-card-shadow);
+}
+
+.sat-roi-clear:hover {
+  background: rgba(127, 29, 29, 0.55);
+  color: #fecaca;
+  border-color: #f87171;
+}
+
+.sat-roi-hint {
+  margin: 0 0 10px 0;
+  font-size: 11px;
+  color: var(--geoai-od-on-light-muted);
+  line-height: 1.4;
+}
