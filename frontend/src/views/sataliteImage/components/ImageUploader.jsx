@@ -31,9 +31,20 @@ function isEsriDetectionModel(model) {
   return fam === 'esri' || kind === 'esri_dlpk';
 }
 
+/** ResUNet-A solar segmentation via /maskrcnn, from GET /models `models_detailed`. */
+function isSolarPanelModel(model) {
+  if (!model) return false;
+  const fam = String(model.modelFamily || model.model_family || '').toLowerCase();
+  const kind = String(model.modelKind || model.model_kind || '').toLowerCase();
+  if (fam === 'solar_panel' || kind === 'solar_panel') return true;
+  const nameLower = String(model.name || '').toLowerCase();
+  return nameLower.includes('solar') || nameLower.includes('solarpanel');
+}
+
 function modelUiKindLabel(model) {
   if (!model) return '';
   if (isEsriDetectionModel(model)) return 'Esri';
+  if (isSolarPanelModel(model)) return 'Solar panel';
   return model.backend || '';
 }
 
@@ -88,12 +99,32 @@ const ImageUploader = ({
     if (backendLower.includes('srgan') || backendLower.includes('super-resolution')) {
       return { min: 2, max: 8, optimal: 4, step: 2, recommendation: 'Higher scale factor improves resolution but increases processing time' };
     }
+    if (isSolarPanelModel(model)) {
+      return {
+        min: 0,
+        max: 1,
+        optimal: 0.5,
+        step: 0.05,
+        recommendation: 'Solar ResUNet: sigmoid mask cutoff (notebook default 0.5)',
+      };
+    }
     if (isEsriDetectionModel(model) || backendLower.includes('maskrcnn')) {
       return { min: 0, max: 0.7, optimal: 0.2, step: 0.1, recommendation: 'Esri / Mask R-CNN: try 0.2; lower = more detections' };
     }
     const nameLower = (model.name || '').toLowerCase();
-    if (nameLower === 'water_body.pth' || nameLower.includes('water_body')) {
-      return { min: 0, max: 1, optimal: 0.4, step: 0.05, recommendation: 'Water body model uses notebook default threshold 0.4' };
+    if (
+      nameLower === 'water_body.pth' ||
+      nameLower.includes('water_body') ||
+      nameLower.includes('best_resunet') ||
+      nameLower.includes('resunet_finetuned')
+    ) {
+      return {
+        min: 0,
+        max: 1,
+        optimal: 0.4,
+        step: 0.05,
+        recommendation: 'Water body ResUNet: sigmoid mask cutoff (notebook default 0.4)',
+      };
     }
     if (nameLower.includes('sar') && (nameLower.includes('flood') || nameLower.includes('finetune'))) {
       return { min: 0.2, max: 0.8, optimal: 0.5, step: 0.05, recommendation: 'SAR flood UNet: try 0.5; lower = more sensitive' };

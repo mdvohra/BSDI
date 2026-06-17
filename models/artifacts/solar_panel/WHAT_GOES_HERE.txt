@@ -1,0 +1,8 @@
+ResUNet-A solar panel segmentation weights: place *.pth / *.pt here
+(e.g. resunet_a_checkpoint_epoch_200_old_solar.pth).
+
+Auto-detected when the basename contains "_solar" (or starts with "solarpanel").
+Override with env SOLAR_PANEL_MODEL_NAMES=comma,separated,names.pth
+
+Served via the unified backend at /maskrcnn and shown in the Object Detection
+panel (Detection Model dropdown). Inference uses backend/solar_panel_resunet.py.

@@ -1,3 +1,7 @@
 UNet building (and compatible) weights: place *.pth / *.pt here.
 Also scanned: models/artifacts/sar_flood, legacy backend/models/, SAR_Flood/.
+
+Water body ResUNet-A (512², threshold 0.4): water_body.pth, best_resunet_finetuned.pth
+  (or set env WATER_BODY_MODEL_NAMES=comma,separated,names.pth)
+
 Optional sidecar for weights trained with ImageNet normalize (Albumentations): same basename as the .pth with extension .unet_meta.json containing {"normalize": "imagenet"}. Or set env UNET_IMAGENET_NORM_MODELS=myfile.pth,other (comma-separated basenames or stems).

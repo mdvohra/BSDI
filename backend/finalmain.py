@@ -1483,14 +1483,24 @@ def list_models() -> Dict[str, Any]:
             lower_file = file.lower()
             if any(key in lower_file for key in ['super', 'resolution', 'srgan', 'upscale', 'generator']):
                 continue
-            models_detailed.append(
-                {
-                    "name": file,
-                    "kind": "maskrcnn",
-                    "model_family": "maskrcnn",
-                    "display_color_hint": "maskrcnn",
-                }
-            )
+            if _is_solar_panel_model(file):
+                models_detailed.append(
+                    {
+                        "name": file,
+                        "kind": "solar_panel",
+                        "model_family": "solar_panel",
+                        "display_color_hint": "solar_panel",
+                    }
+                )
+            else:
+                models_detailed.append(
+                    {
+                        "name": file,
+                        "kind": "maskrcnn",
+                        "model_family": "maskrcnn",
+                        "display_color_hint": "maskrcnn",
+                    }
+                )
         for mid in sorted(esri_ids):
             models_detailed.append(
                 {

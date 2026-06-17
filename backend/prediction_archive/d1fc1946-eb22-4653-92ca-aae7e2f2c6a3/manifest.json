@@ -1,0 +1,18 @@
+{
+  "task": "unet",
+  "created_at": "2026-06-02 14:00:37",
+  "model_name": "best_resunet_finetuned.pth",
+  "source_filename": "tmpmapyut31.tif",
+  "inference_threshold": 0.4,
+  "width": 512,
+  "height": 512,
+  "artifacts": {
+    "geojson": "D:\\Braein\\BSDI\\backend\\outputs\\d1fc1946-eb22-4653-92ca-aae7e2f2c6a3\\buildings.geojson",
+    "shapefile": "D:\\Braein\\BSDI\\backend\\outputs\\d1fc1946-eb22-4653-92ca-aae7e2f2c6a3\\building_polygons.zip",
+    "overlay": "D:\\Braein\\BSDI\\backend\\outputs\\overlay_d1fc1946-eb22-4653-92ca-aae7e2f2c6a3.png",
+    "confidence_npz": "D:\\Braein\\BSDI\\backend\\outputs\\d1fc1946-eb22-4653-92ca-aae7e2f2c6a3\\confidence_fp16.npz",
+    "unet_run_meta": "D:\\Braein\\BSDI\\backend\\outputs\\d1fc1946-eb22-4653-92ca-aae7e2f2c6a3\\unet_run_meta.json"
+  },
+  "schema_version": "1.0",
+  "run_id": "d1fc1946-eb22-4653-92ca-aae7e2f2c6a3"
+}

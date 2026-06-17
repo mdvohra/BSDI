@@ -354,7 +354,12 @@ _water_smp_resolved_paths: set[str] = set()
 # Trained in water-segmentation-pretrained-unet.ipynb: smp.Unet(resnet50), 4 ch, 224², BCEWithLogitsLoss
 WATER_SMP_MODEL_BASENAMES = frozenset({"water_segmentation.pth"})
 WATER_SMP_INFER_SIZE = 224
-WATER_BODY_MODEL_BASENAMES = frozenset({"water_body.pth"})
+WATER_BODY_MODEL_BASENAMES = frozenset(
+    {
+        "water_body.pth",
+        "best_resunet_finetuned.pth",
+    }
+)
 WATER_BODY_INFER_SIZE = 512
 WATER_BODY_DEFAULT_THRESHOLD = 0.4
 
@@ -375,6 +380,11 @@ def is_water_smp_model(model_name: str) -> bool:
 
 def is_water_body_model(model_name: str) -> bool:
     b = os.path.basename((model_name or "").strip())
+    allow = os.environ.get("WATER_BODY_MODEL_NAMES", "").strip()
+    if allow:
+        allowed = {x.strip().lower() for x in allow.split(",") if x.strip()}
+        if b.lower() in allowed:
+            return True
     return b.lower() in {x.lower() for x in WATER_BODY_MODEL_BASENAMES}
 
 
